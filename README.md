@@ -1,9 +1,7 @@
 # Koperasi Simpan Pinjam
 
 Aplikasi desktop **Pemrograman Berbasis Objek (PBO)** untuk koperasi simpan
-pinjam, dibuat dengan **Java Swing**. Login mengenali akun lalu membuka
-dashboard yang **hanya berisi fitur sesuai peran** (Admin / Kasir / Anggota),
-persis seperti struktur pada gambar.
+pinjam, dibuat dengan **Java Swing**. 
 
 ```
 LOGIN
@@ -105,7 +103,4 @@ src/com/koperasi/
 - **Arsitektur berlapis (clean code):** pemisahan `model` → `repository` →
   `service` → `ui`, dengan `AppContext` sebagai perakit dependensi.
 
-## Tangkapan Layar
 
-Lihat folder `docs/screenshots/`:
-`login.png`, `admin.png`, `kasir.png`, `anggota.png`.
