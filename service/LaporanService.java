@@ -43,4 +43,22 @@ public class LaporanService {
         }
         return total;
     }
+
+    public double totalPiutangBerjalan() {
+        double total = 0;
+        for (Pinjaman p : pinjamanRepository.cariByStatus(StatusPinjaman.DISETUJUI)) {
+            total += p.getSisaPinjaman();
+        }
+        return total;
+    }
+
+    public double totalAngsuranDiterima() {
+        double total = 0;
+        for (Pinjaman p : pinjamanRepository.ambilSemua()) {
+            if (p.getStatus() == StatusPinjaman.DISETUJUI || p.getStatus() == StatusPinjaman.LUNAS) {
+                total += p.getTotalDibayar();
+            }
+        }
+        return total;
+    }
 }

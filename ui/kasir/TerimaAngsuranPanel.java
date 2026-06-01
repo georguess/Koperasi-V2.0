@@ -18,7 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -31,7 +34,9 @@ public class TerimaAngsuranPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTable table;
     private List<Pinjaman> dataAktif;
+    private final JTextField fSearch = UIHelper.textField();
     private final JTextField fJumlah = UIHelper.textField();
+    private TableRowSorter<DefaultTableModel> sorter;
 
     public TerimaAngsuranPanel(AppContext context) {
         this.context = context;
@@ -58,13 +63,45 @@ public class TerimaAngsuranPanel extends JPanel {
                 return false;
             }
         };
+
+        // Search panel
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        JLabel searchLabel = new JLabel("Cari:");
+        searchLabel.setFont(UIConstants.FONT_NORMAL);
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(fSearch, BorderLayout.CENTER);
+        fSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                String text = fSearch.getText().trim();
+                if (text.isEmpty()) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+        });
+
+        // Table with sorter and center alignment
         table = new JTable(tableModel);
+        sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
         UIHelper.styleTable(table);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
         scroll.setPreferredSize(new Dimension(0, 300));
 
-        card.add(judul, BorderLayout.NORTH);
+        // Assemble top panel with title and search
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(judul, BorderLayout.NORTH);
+        topPanel.add(searchPanel, BorderLayout.SOUTH);
+
+        card.add(topPanel, BorderLayout.NORTH);
         card.add(scroll, BorderLayout.CENTER);
         return card;
     }
@@ -121,7 +158,8 @@ public class TerimaAngsuranPanel extends JPanel {
             return;
         }
 
-        Pinjaman pinjaman = dataAktif.get(row);
+        int modelRow = table.convertRowIndexToModel(row);
+        Pinjaman pinjaman = dataAktif.get(modelRow);
         context.getPinjamanService().terimaAngsuran(pinjaman, jumlah);
         String pesan = "Angsuran " + CurrencyFormatter.format(jumlah)
                 + " untuk " + pinjaman.getAnggota().getNamaLengkap() + " dicatat.";

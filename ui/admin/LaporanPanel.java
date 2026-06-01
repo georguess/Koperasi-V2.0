@@ -40,10 +40,10 @@ public class LaporanPanel extends JPanel {
                 String.valueOf(laporan.totalAnggota()), UIConstants.PRIMARY));
         grid.add(UIHelper.statCard("Total Simpanan",
                 CurrencyFormatter.format(laporan.totalSimpanan()), UIConstants.SUCCESS));
-        grid.add(UIHelper.statCard("Pinjaman Menunggu",
-                String.valueOf(laporan.jumlahPinjamanPengajuan()), UIConstants.ACCENT));
-        grid.add(UIHelper.statCard("Pinjaman Berjalan",
-                String.valueOf(laporan.jumlahPinjamanDisetujui()), UIConstants.PRIMARY_DARK));
+        grid.add(UIHelper.statCard("Total Piutang Berjalan",
+                CurrencyFormatter.format(laporan.totalPiutangBerjalan()), UIConstants.ACCENT));
+        grid.add(UIHelper.statCard("Total Angsuran Diterima",
+                CurrencyFormatter.format(laporan.totalAngsuranDiterima()), UIConstants.PRIMARY_DARK));
         return grid;
     }
 

@@ -6,6 +6,7 @@ import com.koperasi.model.JenisSimpanan;
 import com.koperasi.model.Simpanan;
 import com.koperasi.ui.components.RoundButton;
 import com.koperasi.ui.components.RoundedPanel;
+import com.koperasi.ui.components.SearchableComboBox;
 import com.koperasi.ui.components.UIConstants;
 import com.koperasi.ui.components.UIHelper;
 import com.koperasi.util.CurrencyFormatter;
@@ -21,7 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.RowFilter;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -35,10 +39,12 @@ public class SetorSimpananPanel extends JPanel {
     private static final DateTimeFormatter TGL = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final AppContext context;
-    private JComboBox<Anggota> comboAnggota;
+    private SearchableComboBox<Anggota> comboAnggota;
     private JComboBox<JenisSimpanan> comboJenis;
+    private final JTextField fSearch = UIHelper.textField();
     private final JTextField fJumlah = UIHelper.textField();
     private DefaultTableModel tableModel;
+    private TableRowSorter<DefaultTableModel> sorter;
 
     public SetorSimpananPanel(AppContext context) {
         this.context = context;
@@ -58,7 +64,7 @@ public class SetorSimpananPanel extends JPanel {
         judul.setFont(UIConstants.FONT_HEADING);
         judul.setForeground(UIConstants.TEXT);
 
-        comboAnggota = new JComboBox<>(
+        comboAnggota = new SearchableComboBox<>(
                 context.getAnggotaService().getSemuaAnggota().toArray(new Anggota[0]));
         styleCombo(comboAnggota);
         comboJenis = new JComboBox<>(JenisSimpanan.values());
@@ -124,13 +130,42 @@ public class SetorSimpananPanel extends JPanel {
                 return false;
             }
         };
+
+        // Search panel above table
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        JLabel searchLabel = new JLabel("Cari:");
+        searchLabel.setFont(UIConstants.FONT_NORMAL);
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(fSearch, BorderLayout.CENTER);
+        fSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                String text = fSearch.getText().trim();
+                if (text.length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+        });
+        // Table with sorter and center alignment
         JTable table = new JTable(tableModel);
+        sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
         UIHelper.styleTable(table);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
         scroll.setPreferredSize(new Dimension(0, 280));
-
-        card.add(judul, BorderLayout.NORTH);
+        // Assemble top panel with title and search
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(judul, BorderLayout.NORTH);
+        topPanel.add(searchPanel, BorderLayout.SOUTH);
+        card.add(topPanel, BorderLayout.NORTH);
         card.add(scroll, BorderLayout.CENTER);
         return card;
     }

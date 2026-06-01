@@ -29,9 +29,9 @@ public class AppContext {
         PinjamanRepository pinjamanRepository = new PinjamanRepository();
 
         this.authService = new AuthService(userRepository);
-        this.anggotaService = new AnggotaService(userRepository);
         this.simpananService = new SimpananService(simpananRepository);
         this.pinjamanService = new PinjamanService(pinjamanRepository);
+        this.anggotaService = new AnggotaService(userRepository, pinjamanService, simpananService);
         this.laporanService = new LaporanService(userRepository, simpananService, pinjamanRepository);
 
         DataSeeder.seed(userRepository, anggotaService, simpananService, pinjamanService);
