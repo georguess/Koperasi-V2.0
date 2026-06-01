@@ -6,6 +6,7 @@ import com.koperasi.model.JenisSimpanan;
 import com.koperasi.model.Simpanan;
 import com.koperasi.ui.components.RoundButton;
 import com.koperasi.ui.components.RoundedPanel;
+import com.koperasi.ui.components.SearchableComboBox;
 import com.koperasi.ui.components.UIConstants;
 import com.koperasi.ui.components.UIHelper;
 import com.koperasi.util.CurrencyFormatter;
@@ -38,7 +39,7 @@ public class SetorSimpananPanel extends JPanel {
     private static final DateTimeFormatter TGL = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final AppContext context;
-    private JComboBox<Anggota> comboAnggota;
+    private SearchableComboBox<Anggota> comboAnggota;
     private JComboBox<JenisSimpanan> comboJenis;
     private final JTextField fSearch = UIHelper.textField();
     private final JTextField fJumlah = UIHelper.textField();
@@ -63,7 +64,7 @@ public class SetorSimpananPanel extends JPanel {
         judul.setFont(UIConstants.FONT_HEADING);
         judul.setForeground(UIConstants.TEXT);
 
-        comboAnggota = new JComboBox<>(
+        comboAnggota = new SearchableComboBox<>(
                 context.getAnggotaService().getSemuaAnggota().toArray(new Anggota[0]));
         styleCombo(comboAnggota);
         comboJenis = new JComboBox<>(JenisSimpanan.values());

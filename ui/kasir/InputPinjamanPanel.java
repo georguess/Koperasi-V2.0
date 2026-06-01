@@ -5,6 +5,7 @@ import com.koperasi.model.Anggota;
 import com.koperasi.model.Pinjaman;
 import com.koperasi.ui.components.RoundButton;
 import com.koperasi.ui.components.RoundedPanel;
+import com.koperasi.ui.components.SearchableComboBox;
 import com.koperasi.ui.components.UIConstants;
 import com.koperasi.ui.components.UIHelper;
 import com.koperasi.util.CurrencyFormatter;
@@ -12,7 +13,6 @@ import com.koperasi.util.CurrencyFormatter;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -31,7 +31,7 @@ import java.util.List;
 public class InputPinjamanPanel extends JPanel {
 
     private final AppContext context;
-    private JComboBox<Anggota> comboAnggota;
+    private SearchableComboBox<Anggota> comboAnggota;
     private final JTextField fPokok = UIHelper.textField();
     private final JTextField fBunga = UIHelper.textField();
     private final JTextField fTenor = UIHelper.textField();
@@ -57,7 +57,7 @@ public class InputPinjamanPanel extends JPanel {
         judul.setFont(UIConstants.FONT_HEADING);
         judul.setForeground(UIConstants.TEXT);
 
-        comboAnggota = new JComboBox<>(
+        comboAnggota = new SearchableComboBox<>(
                 context.getAnggotaService().getSemuaAnggota().toArray(new Anggota[0]));
         comboAnggota.setFont(UIConstants.FONT_NORMAL);
         comboAnggota.setBackground(UIConstants.CARD);

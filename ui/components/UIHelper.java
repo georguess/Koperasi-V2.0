@@ -47,7 +47,7 @@ public final class UIHelper {
                 return c;
             }
         };
-        headerRenderer.setHorizontalAlignment(javax.swing.JLabel.LEFT);
+        headerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
         header.setDefaultRenderer(headerRenderer);
     }
 
