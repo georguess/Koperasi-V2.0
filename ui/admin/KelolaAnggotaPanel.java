@@ -18,6 +18,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.table.TableRowSorter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -34,8 +37,10 @@ public class KelolaAnggotaPanel extends JPanel {
     private final JPasswordField fPassword = new JPasswordField();
     private final JTextField fTelepon = UIHelper.textField();
     private final JTextField fAlamat = UIHelper.textField();
+    private final JTextField fSearch = UIHelper.textField();
     private DefaultTableModel tableModel;
     private JTable table;
+    private TableRowSorter<DefaultTableModel> sorter;
 
     public KelolaAnggotaPanel(AppContext context) {
         this.context = context;
@@ -112,8 +117,34 @@ public class KelolaAnggotaPanel extends JPanel {
                 return false;
             }
         };
+        // Build table with search field
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        JLabel searchLabel = new JLabel("Cari:");
+        searchLabel.setFont(UIConstants.FONT_NORMAL);
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(fSearch, BorderLayout.CENTER);
+        fSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                String text = fSearch.getText().trim();
+                if (text.length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+        });
+        // Table
         table = new JTable(tableModel);
         UIHelper.styleTable(table);
+        sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
+        // Center align all columns
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
         scroll.setPreferredSize(new Dimension(0, 260));
@@ -129,7 +160,11 @@ public class KelolaAnggotaPanel extends JPanel {
         atas.setOpaque(false);
         atas.add(judul, BorderLayout.WEST);
 
-        card.add(atas, BorderLayout.NORTH);
+        // Add search panel above table
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(atas, BorderLayout.NORTH);
+        topPanel.add(searchPanel, BorderLayout.SOUTH);
+        card.add(topPanel, BorderLayout.NORTH);
         card.add(scroll, BorderLayout.CENTER);
         card.add(bawah, BorderLayout.SOUTH);
         return card;
@@ -182,8 +217,17 @@ public class KelolaAnggotaPanel extends JPanel {
                 "Hapus anggota \"" + anggota.getNamaLengkap() + "\"?",
                 "Konfirmasi", JOptionPane.YES_NO_OPTION);
         if (pilih == JOptionPane.YES_OPTION) {
-            context.getAnggotaService().hapusAnggota(anggota);
-            refreshTable();
+            try {
+                context.getAnggotaService().hapusAnggota(anggota);
+                JOptionPane.showMessageDialog(this,
+                        "Anggota \"" + anggota.getNamaLengkap() + "\" berhasil dihapus.",
+                        "Berhasil", JOptionPane.INFORMATION_MESSAGE);
+                refreshTable();
+            } catch (IllegalStateException ex) {
+                JOptionPane.showMessageDialog(this,
+                        ex.getMessage(),
+                        "Kesalahan Validasi", JOptionPane.WARNING_MESSAGE);
+            }
         }
     }
 
